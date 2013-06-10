@@ -1,0 +1,26 @@
+<Scene>
+	<Files>
+		<File Id="seq1" Path="surganim/data/surgseq1.fbx"/>
+		<File Id="seq2" Path="surganim/data/surgseq2.fbx"/>
+		<File Id="seq3" Path="surganim/data/surgseq3.fbx"/>
+		<File Id="seq4" Path="surganim/data/surgseq4.fbx"/>
+	</Files>
+
+	<Objects>
+		<AnimatedObject FileIndex="seq1" Id="seq1" Scale="0.02 0.02 0.02" WorldPos="0 1 -2" Effect="textured" 
+			OnAnimationEnded="playseq2()"/>
+			
+		<AnimatedObject FileIndex="seq2" Id="seq2" Scale="0.02 0.02 0.02" WorldPos="0 1 -2" Effect="textured"
+			OnAnimationEnded="playseq3()"/>
+			
+		<AnimatedObject FileIndex="seq3" Id="seq3" Scale="0.02 0.02 0.02" WorldPos="0 1 -2" Effect="textured"
+			OnAnimationEnded="playseq4()"/>
+			
+		<AnimatedObject FileIndex="seq4" Id="seq4" Scale="0.02 0.02 0.02" WorldPos="0 1 -2" Effect="textured"/>
+		
+		<Plane Height="50" Width="50" Rotation="-90 0 0" Tiling="1 1" WorldPos="0 0 0" Effect="textured -d common/cubemaps/grid1/negy.png" />
+		
+	</Objects>
+	
+	<Skybox Path="common/cubemaps/grid1" Extension="png" />
+</Scene>
