@@ -3,6 +3,15 @@ from math import *
 from euclid import *
 from omega import *
 from cyclops import *
+
+scene = getSceneManager()
+scene.createProgramFromString("depthColor", 
+# Vertex shader
+# Basic example showing how to load a static model, and display it in a basic scene.
+from math import *
+from euclid import *
+from omega import *
+from cyclops import *
 from pointCloud import *
 
 scene = getSceneManager()
@@ -12,7 +21,7 @@ scene.addLoader(PointsLoader())
 # pointCloud are inside the modules directory.
 shaderPath = "../modules/pointCloud/shaders";
 program = ProgramAsset()
-program.name = "points"
+program.name = "pointsDepth"
 program.vertexShaderName = shaderPath + "/Sphere.vert"
 program.fragmentShaderName = shaderPath + "/Sphere.frag"
 program.geometryShaderName = shaderPath + "/Sphere.geom"
@@ -21,9 +30,9 @@ program.geometryInput = PrimitiveType.Points
 program.geometryOutput = PrimitiveType.TriangleStrip
 scene.addProgram(program)
 
-shaderPath = "endurance/shaders";
+shaderPath = "./shaders";
 programDepthColor = ProgramAsset()
-programDepthColor.name = "pointsDepth"
+programDepthColor.name = "points"
 programDepthColor.vertexShaderName = shaderPath + "/SphereDepthColor.vert"
 programDepthColor.fragmentShaderName = shaderPath + "/SphereDepthColor.frag"
 programDepthColor.geometryShaderName = shaderPath + "/Sphere.geom"
@@ -32,7 +41,7 @@ programDepthColor.geometryInput = PrimitiveType.Points
 programDepthColor.geometryOutput = PrimitiveType.TriangleStrip
 scene.addProgram(programDepthColor)
 
-shaderPath = "endurance/shaders";
+shaderPath = "./shaders";
 programFuzzy = ProgramAsset()
 programFuzzy.name = "pointsFuzzy"
 programFuzzy.vertexShaderName = shaderPath + "/SphereFuzzy.vert"
@@ -46,7 +55,8 @@ scene.addProgram(programFuzzy)
 #--------------------------------------------------------------------------------------------------
 lakePoints = ModelInfo()
 lakePoints.name = "lake-points"
-lakePoints.path = "data/bonney-points.xyz"
+lakePoints.path = "data/bonney-points-09.xyz"
+lakePoints.optimize = True
 scene.loadModel(lakePoints)
 
 lakeSonarMeshModel = ModelInfo()
@@ -74,7 +84,7 @@ minDepth = lake.getMaterial().addUniform('unif_MinDepth', UniformType.Float)
 maxDepth = lake.getMaterial().addUniform('unif_MaxDepth', UniformType.Float)
 
 lakeSonarMesh = StaticObject.create("lake-sonar-mesh")
-lakeSonarMesh.setEffect("colored -e white -C | colored -d black -w -o -1000 -C")
+lakeSonarMesh.setEffect("colored -e white -C -t | colored -d black -w -o -1000 -C -t")
 lake.addChild(lakeSonarMesh)
 
 lakeSondeDrops = StaticObject.create("lake-sonde-drops")
@@ -114,6 +124,8 @@ curScale = 0.001
 
 mm = MenuManager.createAndInitialize()
 
+lbl = mm.getMainMenu().addLabel("Camera Position:")
+
 mm.getMainMenu().addLabel("Point Size")
 ss = mm.getMainMenu().addSlider(10, "onPointSizeSliderValueChanged(%value%)")
 ss.getSlider().setValue(4)
@@ -138,7 +150,7 @@ sondebtn.getButton().setChecked(True)
 
 ptx = mm.getMainMenu().addButton("Sonde Bathymetry Transparency", "lakeSonarMesh.getMaterial().setTransparent(%value%)")
 ptx.getButton().setCheckable(True)
-ptx.getButton().setChecked(True)
+ptx.getButton().setChecked(False)
 
 ss = mm.getMainMenu().addSlider(11, "lakeSonarMesh.getMaterial().setAlpha(%value% * 0.1)")
 ss.getSlider().setValue(10)
@@ -175,7 +187,7 @@ def renderModeDepthColor():
 	lake.setEffect("pointsDepth")
 
 def renderModeFuzzy():
-	lake.setEffect("pointsFuzzy -a -D")
+	lake.setEffect("pointsFuzzy -t -a -D")
 
 
 #queueCommand(':hint displayWand')
@@ -198,10 +210,23 @@ def handleEvent():
 		
 setEventFunction(handleEvent)
 
+lastLabelUpdate = 0
+
 #--------------------------------------------------------------------------------------------------
 def onUpdate(frame, time, dt):
 	global curScale
 	global globalScale
+	global lastLabelUpdate
+	global lbl
+	
+	if(time - lastLabelUpdate > 0.5):
+		lastLabelUpdate = time
+		c = getDefaultCamera().getPosition() + getDefaultCamera().getHeadOffset()
+		sx = "%.2f" % c.x
+		sy = "%.2f" % c.y
+		sz = "%.2f" % c.z
+		lbl.setText("Center Position: " + sx + " " + sz + " " + sy)
+	
 	curScale += (globalScale - curScale) * dt
 	if(abs(curScale - globalScale) > 0.001):
 		pivot.setScale(Vector3(curScale, curScale, curScale))
