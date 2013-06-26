@@ -1,13 +1,3 @@
-# Basic example showing how to load a static model, and display it in a basic scene.
-from math import *
-from euclid import *
-from omega import *
-from cyclops import *
-
-scene = getSceneManager()
-scene.createProgramFromString("depthColor", 
-# Vertex shader
-# Basic example showing how to load a static model, and display it in a basic scene.
 from math import *
 from euclid import *
 from omega import *
@@ -52,7 +42,7 @@ programFuzzy.geometryInput = PrimitiveType.Points
 programFuzzy.geometryOutput = PrimitiveType.TriangleStrip
 scene.addProgram(programFuzzy)
 
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 lakePoints = ModelInfo()
 lakePoints.name = "lake-points"
 lakePoints.path = "data/bonney-points-09.xyz"
