@@ -45,6 +45,7 @@ class MeasuringTape(Actor):
 		self.body.setEffect('colored -e #000060')
 		self.startText.getMaterial().setDepthTestEnabled(False)
 		self.endText.getMaterial().setDepthTestEnabled(False)
+		self.bodyText.getMaterial().setDepthTestEnabled(False)
 		#self.endText.setFacingCamera(getDefaultCamera())
 		
 	#--------------------------------------------------------------------------
@@ -54,10 +55,15 @@ class MeasuringTape(Actor):
 	#--------------------------------------------------------------------------
 	def onUpdate(self, frame, time, dt):
 		#self.startText.setFacingCamera(getDefaultCamera())
-		self.startText.setText(str(self.startHandle.getPosition()))
-		self.endText.setText(str(self.endHandle.getPosition()))
-		self.bodyLine.setStart(self.startHandle.getPosition())
-		self.bodyLine.setEnd(self.endHandle.getPosition())
+		s = self.startHandle.getPosition()
+		e = self.endHandle.getPosition()
+		self.startText.setText(str(s))
+		self.endText.setText(str(e))
+		self.bodyLine.setStart(s)
+		self.bodyLine.setEnd(e)
+		length = str((s - e).magnitude())
+		self.bodyText.setText(length)
+		self.bodyText.setPosition((s + e) / 2)
 		
 	#--------------------------------------------------------------------------
 	def onEvent(self):
