@@ -4,50 +4,43 @@ from omega import *
 from cyclops import *
 from pointCloud import *
 
+import DivePointCloud
+
 scene = getSceneManager()
-scene.addLoader(PointsLoader())
-
-# The '..' at the beginning is to move up and out of the omega data dir. default shaders for
-# pointCloud are inside the modules directory.
-shaderPath = "../modules/pointCloud/shaders";
-program = ProgramAsset()
-program.name = "pointsDepth"
-program.vertexShaderName = shaderPath + "/Sphere.vert"
-program.fragmentShaderName = shaderPath + "/Sphere.frag"
-program.geometryShaderName = shaderPath + "/Sphere.geom"
-program.geometryOutVertices = 4
-program.geometryInput = PrimitiveType.Points
-program.geometryOutput = PrimitiveType.TriangleStrip
-scene.addProgram(program)
-
-shaderPath = "./shaders";
-programDepthColor = ProgramAsset()
-programDepthColor.name = "points"
-programDepthColor.vertexShaderName = shaderPath + "/SphereDepthColor.vert"
-programDepthColor.fragmentShaderName = shaderPath + "/SphereDepthColor.frag"
-programDepthColor.geometryShaderName = shaderPath + "/Sphere.geom"
-programDepthColor.geometryOutVertices = 4
-programDepthColor.geometryInput = PrimitiveType.Points
-programDepthColor.geometryOutput = PrimitiveType.TriangleStrip
-scene.addProgram(programDepthColor)
-
-shaderPath = "./shaders";
-programFuzzy = ProgramAsset()
-programFuzzy.name = "pointsFuzzy"
-programFuzzy.vertexShaderName = shaderPath + "/SphereFuzzy.vert"
-programFuzzy.fragmentShaderName = shaderPath + "/SphereFuzzy.frag"
-programFuzzy.geometryShaderName = shaderPath + "/Sphere.geom"
-programFuzzy.geometryOutVertices = 4
-programFuzzy.geometryInput = PrimitiveType.Points
-programFuzzy.geometryOutput = PrimitiveType.TriangleStrip
-scene.addProgram(programFuzzy)
+scene.addLoader(TextPointsLoader())
+scene.addLoader(BinaryPointsLoader())
 
 #------------------------------------------------------------------------------
-lakePoints = ModelInfo()
-lakePoints.name = "lake-points"
-lakePoints.path = "data/bonney-points-09.xyz"
-lakePoints.optimize = True
-scene.loadModel(lakePoints)
+# models to load
+diveNames = {
+		'dive09-13': "data/bonney-09-dive13.xyzb",
+		'dive09-17': "data/bonney-09-dive17.xyzb",
+		'dive09-18': "data/bonney-09-dive18.xyzb",
+		'dive09-19': "data/bonney-09-dive19.xyzb",
+		'dive09-20': "data/bonney-09-dive20.xyzb",
+		'dive09-21': "data/bonney-09-dive21.xyzb",
+		'dive09-22': "data/bonney-09-dive22.xyzb",
+		'dive09-23': "data/bonney-09-dive23.xyzb",
+		'dive09-24': "data/bonney-09-dive24.xyzb",
+		'dive09-25': "data/bonney-09-dive25.xyzb",
+		'dive09-26': "data/bonney-09-dive26.xyzb",
+		'dive09-27': "data/bonney-09-dive27.xyzb"}
+
+lake = SceneNode.create("lake")
+
+dives = []
+
+pointDecimation = 10
+
+totalPoints = 0
+
+for name,model in diveNames.iteritems():
+	dive = DivePointCloud.DivePointCloud(lake, name)
+	dive.load(model, pointDecimation)
+	dives.append(dive)
+	totalPoints += dive.diveInfo['numPoints']
+
+print("loaded points: " + str(totalPoints))
 
 lakeSonarMeshModel = ModelInfo()
 lakeSonarMeshModel.name = "lake-sonar-mesh"
@@ -66,12 +59,11 @@ lakeSondeDropsModel.normalizeNormals = True
 scene.loadModel(lakeSondeDropsModel)
 
 # Create a scene object using the loaded model
-lake = StaticObject.create("lake-points")
-lake.setEffect("points")
-pointScale = lake.getMaterial().addUniform('pointScale', UniformType.Float)
-globalAlpha = lake.getMaterial().addUniform('globalAlpha', UniformType.Float)
-minDepth = lake.getMaterial().addUniform('unif_MinDepth', UniformType.Float)
-maxDepth = lake.getMaterial().addUniform('unif_MaxDepth', UniformType.Float)
+#lake.setEffect("points")
+#pointScale = lake.getMaterial().addUniform('pointScale', UniformType.Float)
+#globalAlpha = lake.getMaterial().addUniform('globalAlpha', UniformType.Float)
+#minDepth = lake.getMaterial().addUniform('unif_MinDepth', UniformType.Float)
+#maxDepth = lake.getMaterial().addUniform('unif_MaxDepth', UniformType.Float)
 
 lakeSonarMesh = StaticObject.create("lake-sonar-mesh")
 lakeSonarMesh.setEffect("colored -e white -C -t | colored -d black -w -o -1000 -C -t")
@@ -82,11 +74,11 @@ lakeSondeDrops.setEffect("colored -e #008000")
 lakeSondeDrops.setScale(Vector3(1, 1, 1/6.0))
 lake.addChild(lakeSondeDrops)
 
-minDepth.setFloat(10)
-maxDepth.setFloat(50.0)
+#minDepth.setFloat(10)
+#maxDepth.setFloat(50.0)
 
-pointScale.setFloat(0.02)
-globalAlpha.setFloat(1.0)
+#pointScale.setFloat(0.02)
+#globalAlpha.setFloat(1.0)
 
 pivot = SceneNode.create('pivot')
 pivot.addChild(lake)
@@ -157,11 +149,11 @@ mrm.addButton("Fuzzy", "renderModeFuzzy()")
 
 def onPointSizeSliderValueChanged(value):
 	size = (value + 1) * 0.01
-	pointScale.setFloat(size)
+	DivePointCloud.pointScale.setFloat(size)
 
 def onAlphaSliderValueChanged(value):
 	a = value * 0.1
-	globalAlpha.setFloat(a)
+	DivePointCloud.globalAlpha.setFloat(a)
 	
 def onYScaleSliderValueChanged(value):
 	scale = (value + 1)
