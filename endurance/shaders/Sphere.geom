@@ -14,16 +14,20 @@ flat out float sphere_radius;
 varying in float var_Depth[];
 varying out float depth;
 
-uniform float globalAlpha;
-
 varying in vec3 var_WorldPos[];
+
+// data point attributes
+varying in vec3 var_Attribs[];
+uniform vec3 unif_MaxAttrib;
+uniform vec3 unif_MinAttrib;
 
 void
 main(void)
 {
 	vec3 worldPos = var_WorldPos[0];
 	
-	if(all(greaterThan(worldPos, unif_MinBox)) && all(lessThan(worldPos, unif_MaxBox)))
+	if(all(greaterThan(worldPos, unif_MinBox)) && all(lessThan(worldPos, unif_MaxBox))
+		&& all(greaterThan(var_Attribs[0], unif_MinAttrib)) && all(lessThan(var_Attribs[0], unif_MaxAttrib)))
 	{
 		sphere_radius =  pointScale * 2.0;
 		float halfsize = sphere_radius * 0.5;
@@ -31,7 +35,6 @@ main(void)
 		depth = var_Depth[0];
 
 		gl_FrontColor = gl_FrontColorIn[0];
-		gl_FrontColor.a = globalAlpha;
 
 		eye_position = gl_PositionIn[0];
 		vertex_light_position = normalize(gl_LightSource[0].position.xyz - eye_position.xyz);

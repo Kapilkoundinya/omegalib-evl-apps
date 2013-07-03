@@ -7,6 +7,7 @@ from pointCloud import *
 #------------------------------------------------------------------------------
 # Load GLSL shaders used to render dive point clouds
 shaderPath = "./shaders";
+
 programDepthColor = ProgramAsset()
 programDepthColor.name = "points"
 programDepthColor.vertexShaderName = shaderPath + "/SphereDepthColor.vert"
@@ -17,15 +18,23 @@ programDepthColor.geometryInput = PrimitiveType.Points
 programDepthColor.geometryOutput = PrimitiveType.TriangleStrip
 getSceneManager().addProgram(programDepthColor)
 
+programDepthColorSimple = ProgramAsset()
+programDepthColorSimple.name = "points-simple"
+programDepthColorSimple.vertexShaderName = shaderPath + "/SphereDepthColorSimple.vert"
+programDepthColorSimple.fragmentShaderName = shaderPath + "/SphereDepthColorSimple.frag"
+getSceneManager().addProgram(programDepthColorSimple)
+
 #------------------------------------------------------------------------------
 # GLSL uniforms shared by all loaded dives
 pointScale = Uniform.create('pointScale', UniformType.Float, 1)
-globalAlpha = Uniform.create('globalAlpha', UniformType.Float, 1)
 minDepth = Uniform.create('unif_MinDepth', UniformType.Float, 1)
 maxDepth = Uniform.create('unif_MaxDepth', UniformType.Float, 1)
 
 minBox = Uniform.create('unif_MinBox', UniformType.Vector3f, 1)
 maxBox = Uniform.create('unif_MaxBox', UniformType.Vector3f, 1)
+
+minAttrib = Uniform.create('unif_MinAttrib', UniformType.Vector3f, 1)
+maxAttrib = Uniform.create('unif_MaxAttrib', UniformType.Vector3f, 1)
 
 w1 = Uniform.create('unif_W1', UniformType.Float, 1)
 w2 = Uniform.create('unif_W2', UniformType.Float, 1)
@@ -35,10 +44,9 @@ w4 = Uniform.create('unif_W4', UniformType.Float, 1)
 minDepth.setFloat(10)
 maxDepth.setFloat(50.0)
 pointScale.setFloat(0.02)
-globalAlpha.setFloat(1.0)	
 
-minBox.setVector3f(Vector3(-1000,-1000,-1000))
-maxBox.setVector3f(Vector3(1000,1000,1000))
+minBox.setVector3f(Vector3(-100000,-100000,-100000))
+maxBox.setVector3f(Vector3(100000,100000,100000))
 
 w1.setFloat(1)
 w2.setFloat(0)
@@ -87,7 +95,6 @@ class DivePointCloud:
 		# attach shader uniforms
 		mat = segment.getMaterial()
 		mat.attachUniform(pointScale)
-		mat.attachUniform(globalAlpha)
 		mat.attachUniform(minDepth)
 		mat.attachUniform(maxDepth)
 		mat.attachUniform(minBox)
@@ -96,5 +103,7 @@ class DivePointCloud:
 		mat.attachUniform(w2)
 		mat.attachUniform(w3)
 		mat.attachUniform(w4)
+		mat.attachUniform(minAttrib)
+		mat.attachUniform(maxAttrib)
 	
 	

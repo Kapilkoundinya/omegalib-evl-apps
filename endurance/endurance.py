@@ -1,3 +1,4 @@
+import sys
 from math import *
 from euclid import *
 from omega import *
@@ -11,7 +12,7 @@ scene = getSceneManager()
 scene.addLoader(TextPointsLoader())
 scene.addLoader(BinaryPointsLoader())
 
-pointCloudPath = "/data/evl/bonney"
+pointCloudPath = "D:/Workspace/omegalib/apps/endurance/data"
 
 #------------------------------------------------------------------------------
 # models to load
@@ -30,7 +31,18 @@ diveNames = {
 		'dive09-27': pointCloudPath + "/bonney-09-dive27.xyzb"}
 
 diveColors = {
-}
+		'dive09-13': Color('#ff0000'),
+		'dive09-17': Color('#00ff00'),
+		'dive09-18': Color('#0000ff'),
+		'dive09-19': Color('#ffff00'),
+		'dive09-20': Color('#ff00ff'),
+		'dive09-21': Color('#00ffff'),
+		'dive09-22': Color('#800000'),
+		'dive09-23': Color('#008000'),
+		'dive09-24': Color('#000080'),
+		'dive09-25': Color('#808000'),
+		'dive09-26': Color('#800080'),
+		'dive09-27': Color('#008080')}
 		
 lake = SceneNode.create("lake")
 
@@ -39,15 +51,41 @@ dives = []
 pointDecimation = 1
 
 totalPoints = 0
+fieldMin = Vector3(sys.float_info.max,sys.float_info.max, sys.float_info.max)
+fieldMax = Vector3(-sys.float_info.max,-sys.float_info.max, -sys.float_info.max)
 
+#------------------------------------------------------------------------------
+# load dives
 for name,model in diveNames.iteritems():
 	dive = DivePointCloud.DivePointCloud(lake, name)
 	dive.load(model, pointDecimation)
+	dive.diveNode.getMaterial().setColor(diveColors[name], Color('black'))
 	dives.append(dive)
 	totalPoints += dive.diveInfo['numPoints']
+	# update field bounds
+	minr = dive.diveInfo['minR']
+	maxr = dive.diveInfo['maxR']
+	ming = dive.diveInfo['minG']
+	maxg = dive.diveInfo['maxG']
+	minb = dive.diveInfo['minB']
+	maxb = dive.diveInfo['maxB']
+	if(minr < fieldMin.x): fieldMin.x = minr
+	if(ming < fieldMin.y): fieldMin.y = ming
+	if(minb < fieldMin.z): fieldMin.z = minb	
+	if(maxr > fieldMax.x): fieldMax.x = maxr
+	if(maxg > fieldMax.y): fieldMax.y = maxg
+	if(maxb > fieldMax.z): fieldMax.z = maxb
 
 print("loaded points: " + str(totalPoints))
+print("Field minimums: " + str(fieldMin))
+print("Field maximums: " + str(fieldMax))
 
+# Setup attribute bounds uniforms
+DivePointCloud.minAttrib.setVector3f(fieldMin)
+DivePointCloud.maxAttrib.setVector3f(fieldMax)
+
+#------------------------------------------------------------------------------
+# load additional models
 lakeSonarMeshModel = ModelInfo()
 lakeSonarMeshModel.name = "lake-sonar-mesh"
 lakeSonarMeshModel.path = "/data/evl/febret/omegalib/appData/endurance/bonney-sonde-bathy.obj"
@@ -112,16 +150,83 @@ curScale = 0.001
 
 mm = MenuManager.createAndInitialize()
 
-lbl = mm.getMainMenu().addLabel("Camera Position:")
+#------------------------------------------------------------------------------
+# dive list
+divemnu = mm.getMainMenu().addSubMenu('dives')
+for dive in dives:
+	dbtn = divemnu.addButton(dive.name, 'setDiveVisible("' + dive.name + '", %value%)') 
+	btn = dbtn.getButton()
+	btn.setCheckable(True)
+	btn.setChecked(True)
+	btn.setImageEnabled(True)
+	btn.setWidth(200)
+	btn.getImage().setFillColor(diveColors[dive.name])
+	btn.getImage().setFillEnabled(True)
+	btn.getImage().setSize(Vector2(20,20))
+	
+def setDiveVisible(name, visible):
+	for dive in dives: 
+		if(dive.name == name): 
+			dive.diveNode.setVisible(visible)
 
+#------------------------------------------------------------------------------
+# Sliders set the angle bounds
+boundmnu = mm.getMainMenu().addSubMenu("Bounds")
+anglelabel = boundmnu.addLabel("Angle")
+angleminslider = boundmnu.addSlider(100, "setAngleBounds(%value%, anglemaxslider.getSlider().getValue())")
+angleminslider.getSlider().setValue(0)
+angleminslider.getWidget().setWidth(200)
+anglemaxslider = boundmnu.addSlider(100, "setAngleBounds(angleminslider.getSlider().getValue(), %value%)")
+anglemaxslider.getSlider().setValue(100)
+anglemaxslider.getWidget().setWidth(200)
+
+rangelabel = boundmnu.addLabel("Range")
+rangeminslider = boundmnu.addSlider(100, "setRangeBounds(%value%, rangemaxslider.getSlider().getValue())")
+rangeminslider.getSlider().setValue(0)
+rangeminslider.getWidget().setWidth(200)
+rangemaxslider = boundmnu.addSlider(100, "setRangeBounds(rangeminslider.getSlider().getValue(), %value%)")
+rangemaxslider.getSlider().setValue(100)
+rangemaxslider.getWidget().setWidth(200)
+			
+
+# Sets the angle bounds
+def setAngleBounds(percMin, percMax):
+	range = fieldMax.x - fieldMin.x
+	min = fieldMin.x + range * percMin / 100
+	max = fieldMin.x + range * percMax / 100
+	curMinAttrib = DivePointCloud.minAttrib.getVector3f()
+	curMaxAttrib = DivePointCloud.maxAttrib.getVector3f()
+	curMinAttrib.x = min
+	curMaxAttrib.x = max
+	DivePointCloud.minAttrib.setVector3f(curMinAttrib)
+	DivePointCloud.maxAttrib.setVector3f(curMaxAttrib)
+	anglelabel.setText("Angle: %.1f" % min + "   %.1f" % max)
+	
+# Sets the range bounds
+def setRangeBounds(percMin, percMax):
+	range = fieldMax.y - fieldMin.y
+	min = fieldMin.y + range * percMin / 100
+	max = fieldMin.y + range * percMax / 100
+	curMinAttrib = DivePointCloud.minAttrib.getVector3f()
+	curMaxAttrib = DivePointCloud.maxAttrib.getVector3f()
+	curMinAttrib.y = min
+	curMaxAttrib.y = max
+	DivePointCloud.minAttrib.setVector3f(curMinAttrib)
+	DivePointCloud.maxAttrib.setVector3f(curMaxAttrib)
+	rangelabel.setText("Range: %.1f" % min + "   %.1f" % max)
+	
+# call both functions to reset bounds and bound labels
+setAngleBounds(0, 100)
+setRangeBounds(0, 100)
+
+#------------------------------------------------------------------------------
+# other menu items
 mm.getMainMenu().addLabel("Point Size")
 ss = mm.getMainMenu().addSlider(10, "onPointSizeSliderValueChanged(%value%)")
 ss.getSlider().setValue(4)
 ss.getWidget().setWidth(200)
 
-ptx = mm.getMainMenu().addButton("Point Transparency", "lake.getMaterial().setTransparent(%value%)")
-ptx.getButton().setCheckable(True)
-ptx.getButton().setChecked(True)
+mm.getMainMenu().addLabel("Point Transparency")
 
 ss = mm.getMainMenu().addSlider(11, "onAlphaSliderValueChanged(%value%)")
 ss.getSlider().setValue(10)
@@ -149,17 +254,28 @@ dropbtn.getButton().setCheckable(True)
 dropbtn.getButton().setChecked(True)
 
 mrm = mm.getMainMenu().addSubMenu("Render Mode")
-mrm.addButton("Color By Normal", "renderModeNormal()")
-mrm.addButton("Color By Depth", "renderModeDepthColor()")
-mrm.addButton("Fuzzy", "renderModeFuzzy()")
+mrm.addButton("Normal", "renderModeNormal()")
+mrm.addButton("Simple", "renderModeSimple()")
+abtn = mrm.addButton("Additive", "setAdditive(%value%)")
+abtn.getButton().setCheckable(True)
+mrm.addLabel("------------------")
+mrm.addButton("Color By Dive", "colorByDive()")
+mrm.addButton("Color By Angle", "colorByAngle()")
+mrm.addButton("Color By Range", "colorByRange()")
+mrm.addButton("Color By Timestamp", "colorByTimestamp()")
 
 def onPointSizeSliderValueChanged(value):
-	size = (value + 1) * 0.01
+	size = ((value + 1) ** 2) * 0.01
 	DivePointCloud.pointScale.setFloat(size)
 
 def onAlphaSliderValueChanged(value):
 	a = value * 0.1
-	DivePointCloud.globalAlpha.setFloat(a)
+	setDiveAlpha(a)
+		
+def setDiveAlpha(v):
+	for dive in dives:
+		dive.diveNode.getMaterial().setAlpha(v)
+
 	
 def onYScaleSliderValueChanged(value):
 	scale = (value + 1)
@@ -169,14 +285,49 @@ def onYScaleSliderValueChanged(value):
 	lake.setScale(Vector3(1, 1, scale))
 	
 def renderModeNormal():
-	lake.setEffect("points")
+	for dive in dives:
+		dive.diveNode.getMaterial().setProgram("points")
+		dive.diveNode.getMaterial().setTransparent(True)
 
-def renderModeDepthColor():
-	lake.setEffect("pointsDepth")
+def renderModeSimple():
+	for dive in dives:
+		dive.diveNode.getMaterial().setProgram("points-simple")
+		dive.diveNode.getMaterial().setTransparent(True)
+	
+def setAdditive(value):
+	for dive in dives:
+		dive.diveNode.getMaterial().setAdditive(value)
+		dive.diveNode.getMaterial().setDepthTestEnabled(not value)
+		
+def colorByAngle():
+	DivePointCloud.w1.setFloat(1)
+	DivePointCloud.w2.setFloat(0)
+	DivePointCloud.w3.setFloat(0)
+	DivePointCloud.w4.setFloat(0)
+	DivePointCloud.minDepth.setFloat(fieldMin.x)
+	DivePointCloud.maxDepth.setFloat(fieldMax.x)
 
-def renderModeFuzzy():
-	lake.setEffect("pointsFuzzy -t -a -D")
+def colorByRange():
+	DivePointCloud.w1.setFloat(0)
+	DivePointCloud.w2.setFloat(1)
+	DivePointCloud.w3.setFloat(0)
+	DivePointCloud.w4.setFloat(0)
+	DivePointCloud.minDepth.setFloat(fieldMin.y)
+	DivePointCloud.maxDepth.setFloat(fieldMax.y)
 
+def colorByTimestamp():
+	DivePointCloud.w1.setFloat(0)
+	DivePointCloud.w2.setFloat(0)
+	DivePointCloud.w3.setFloat(1)
+	DivePointCloud.w4.setFloat(0)
+	DivePointCloud.minDepth.setFloat(fieldMin.z)
+	DivePointCloud.maxDepth.setFloat(fieldMax.z)
+	
+def colorByDive():
+	DivePointCloud.w1.setFloat(0)
+	DivePointCloud.w2.setFloat(0)
+	DivePointCloud.w3.setFloat(0)
+	DivePointCloud.w4.setFloat(1)
 
 #queueCommand(':hint displayWand')
 queueCommand(":autonearfar on")
