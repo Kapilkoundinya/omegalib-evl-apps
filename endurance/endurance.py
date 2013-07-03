@@ -3,6 +3,7 @@ from euclid import *
 from omega import *
 from cyclops import *
 from pointCloud import *
+from measuringTape import *
 
 import DivePointCloud
 
@@ -10,27 +11,32 @@ scene = getSceneManager()
 scene.addLoader(TextPointsLoader())
 scene.addLoader(BinaryPointsLoader())
 
+pointCloudPath = "/data/evl/bonney"
+
 #------------------------------------------------------------------------------
 # models to load
 diveNames = {
-		'dive09-13': "data/bonney-09-dive13.xyzb",
-		'dive09-17': "data/bonney-09-dive17.xyzb",
-		'dive09-18': "data/bonney-09-dive18.xyzb",
-		'dive09-19': "data/bonney-09-dive19.xyzb",
-		'dive09-20': "data/bonney-09-dive20.xyzb",
-		'dive09-21': "data/bonney-09-dive21.xyzb",
-		'dive09-22': "data/bonney-09-dive22.xyzb",
-		'dive09-23': "data/bonney-09-dive23.xyzb",
-		'dive09-24': "data/bonney-09-dive24.xyzb",
-		'dive09-25': "data/bonney-09-dive25.xyzb",
-		'dive09-26': "data/bonney-09-dive26.xyzb",
-		'dive09-27': "data/bonney-09-dive27.xyzb"}
+		'dive09-13': pointCloudPath + "/bonney-09-dive13.xyzb",
+		'dive09-17': pointCloudPath + "/bonney-09-dive17.xyzb",
+		'dive09-18': pointCloudPath + "/bonney-09-dive18.xyzb",
+		'dive09-19': pointCloudPath + "/bonney-09-dive19.xyzb",
+		'dive09-20': pointCloudPath + "/bonney-09-dive20.xyzb",
+		'dive09-21': pointCloudPath + "/bonney-09-dive21.xyzb",
+		'dive09-22': pointCloudPath + "/bonney-09-dive22.xyzb",
+		'dive09-23': pointCloudPath + "/bonney-09-dive23.xyzb",
+		'dive09-24': pointCloudPath + "/bonney-09-dive24.xyzb",
+		'dive09-25': pointCloudPath + "/bonney-09-dive25.xyzb",
+		'dive09-26': pointCloudPath + "/bonney-09-dive26.xyzb",
+		'dive09-27': pointCloudPath + "/bonney-09-dive27.xyzb"}
 
+diveColors = {
+}
+		
 lake = SceneNode.create("lake")
 
 dives = []
 
-pointDecimation = 10
+pointDecimation = 1
 
 totalPoints = 0
 
@@ -44,7 +50,7 @@ print("loaded points: " + str(totalPoints))
 
 lakeSonarMeshModel = ModelInfo()
 lakeSonarMeshModel.name = "lake-sonar-mesh"
-lakeSonarMeshModel.path = "data/bonney-sonde-bathy.obj"
+lakeSonarMeshModel.path = "/data/evl/febret/omegalib/appData/endurance/bonney-sonde-bathy.obj"
 lakeSonarMeshModel.optimize = True
 lakeSonarMeshModel.generateNormals = True
 lakeSonarMeshModel.normalizeNormals = True
@@ -52,7 +58,7 @@ scene.loadModel(lakeSonarMeshModel)
 
 lakeSondeDropsModel = ModelInfo()
 lakeSondeDropsModel.name = "lake-sonde-drops"
-lakeSondeDropsModel.path = "data/bonney-sonde-drops.obj"
+lakeSondeDropsModel.path = "/data/evl/febret/omegalib/appData/endurance/bonney-sonde-drops.obj"
 lakeSondeDropsModel.optimize = True
 lakeSondeDropsModel.generateNormals = True
 lakeSondeDropsModel.normalizeNormals = True
@@ -173,11 +179,30 @@ def renderModeFuzzy():
 
 
 #queueCommand(':hint displayWand')
+queueCommand(":autonearfar on")
+globalScale = 1
+DivePointCloud.maxDepth.setFloat(50)
+DivePointCloud.minDepth.setFloat(-50)
 
+#------------------------------------------------------------------------------
+# Wand ray information
+wandRayPos = None
+wandRayDir = None
+
+#------------------------------------------------------------------------------
 # Event callback
 def handleEvent():
 	e = getEvent()
 	global globalScale
+	global wandRayPos
+	global wandRayDir
+	
+	# save wand ray
+	if(e.getServiceType() == ServiceType.Wand):
+		r = getRayFromEvent(e)
+		wandRayPos = r[1]	
+		wandRayDir = r[2]	
+		
 	if(not e.isProcessed()):
 		cam = getDefaultCamera()
 		if(e.getServiceType() == ServiceType.Wand and e.getSourceId() == 1):
@@ -194,23 +219,58 @@ setEventFunction(handleEvent)
 
 lastLabelUpdate = 0
 
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 def onUpdate(frame, time, dt):
 	global curScale
 	global globalScale
 	global lastLabelUpdate
 	global lbl
 	
-	if(time - lastLabelUpdate > 0.5):
-		lastLabelUpdate = time
-		c = getDefaultCamera().getPosition() + getDefaultCamera().getHeadOffset()
-		sx = "%.2f" % c.x
-		sy = "%.2f" % c.y
-		sz = "%.2f" % c.z
-		lbl.setText("Center Position: " + sx + " " + sz + " " + sy)
-	
 	curScale += (globalScale - curScale) * dt
 	if(abs(curScale - globalScale) > 0.001):
 		pivot.setScale(Vector3(curScale, curScale, curScale))
 		
 setUpdateFunction(onUpdate)
+
+#scene.setBackgroundColor(Color('#303030'))
+
+#------------------------------------------------------------------------------
+# setup the measuring tape
+tape = MeasuringTape()
+tapemnu = mm.getMainMenu().addSubMenu('Measuring Tape')
+tapemnu.addButton('Set End', 'tapeSetEnd()')
+tapemnu.addButton('Set Start', 'tapeSetStart()')
+tapemnu.addButton('Set Bounds', 'setBounds()')
+tapemnu.addButton('Reset Bounds', 'resetBounds()')
+
+def tapeSetStart():
+	# Position 2 meters away along wand.
+	tape.startHandle.setPosition(wandRayPos + wandRayDir * 2)
+	tape.startText.setFacingCamera(getDefaultCamera())
+	#tape.startText.setColor(Color('black'))
+	
+def tapeSetEnd():
+	# Position 2 meters away along wand.
+	tape.endHandle.setPosition(wandRayPos + wandRayDir * 2)
+	tape.endText.setFacingCamera(getDefaultCamera())
+	#tape.endText.setColor(Color('black'))
+
+def setBounds():
+	ep = tape.endHandle.getPosition()
+	sp = tape.startHandle.getPosition()
+	minx = ep.x if ep.x < sp.x else sp.x
+	miny = ep.y if ep.y < sp.y else sp.y
+	minz = ep.z if ep.z < sp.z else sp.z
+	maxx = ep.x if ep.x > sp.x else sp.x
+	maxy = ep.y if ep.y > sp.y else sp.y
+	maxz = ep.z if ep.z > sp.z else sp.z
+	minv = Vector3(minx, miny, minz)
+	maxv = Vector3(maxx, maxy, maxz)
+	print(minv)
+	print(maxv)
+	DivePointCloud.minBox.setVector3f(minv)
+	DivePointCloud.maxBox.setVector3f(maxv)	
+	
+def resetBounds():
+	DivePointCloud.minBox.setVector3f(Vector3(-1000,-1000,-1000))
+	DivePointCloud.maxBox.setVector3f(Vector3(1000,1000,1000))	

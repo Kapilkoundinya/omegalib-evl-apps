@@ -5,6 +5,8 @@ from omega import *
 from omegaToolkit import *
 from cyclops import *
 
+primaryButton = getButtonSetting('config/ui', 'primaryButton', EventFlags.Button1)
+
 class MeasuringTape(Actor):
 	startHandle = None
 	startText = None
@@ -40,9 +42,9 @@ class MeasuringTape(Actor):
 		self.endHandle.setPosition(Vector3(1,2,-4))
 		
 		# Set visual properties
-		self.startHandle.setEffect('colored -e blue')
-		self.endHandle.setEffect('colored -e blue')
-		self.body.setEffect('colored -e #000060')
+		self.startHandle.setEffect('colored -e #005000')
+		self.endHandle.setEffect('colored -e #005000')
+		self.body.setEffect('colored -e #505000')
 		self.startText.getMaterial().setDepthTestEnabled(False)
 		self.endText.getMaterial().setDepthTestEnabled(False)
 		self.bodyText.getMaterial().setDepthTestEnabled(False)
@@ -68,7 +70,7 @@ class MeasuringTape(Actor):
 	#--------------------------------------------------------------------------
 	def onEvent(self):
 		e = getEvent()
-		if(e.isButtonDown(EventFlags.Button1)):
+		if(e.isButtonDown(primaryButton)):
 			r = getRayFromEvent(e)
 			hitData = hitNode(self.startHandle, r[1], r[2])
 			if(hitData[0]):

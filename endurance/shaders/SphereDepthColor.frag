@@ -29,6 +29,6 @@ void main (void)
     pos = gl_ProjectionMatrix * pos;
 				
 	gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0;
-    gl_FragColor.rgb = mix(vec3(0.2, 0.2, 1.0), vec3(1.0, 0.2, 0.2), depth) * diffuse_value;
+    gl_FragColor.rgb = gl_Color.rgb * diffuse_value;
     gl_FragColor.a = gl_Color.a;
 }
