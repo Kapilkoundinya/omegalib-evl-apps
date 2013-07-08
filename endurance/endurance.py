@@ -51,7 +51,7 @@ lake = SceneNode.create("lake")
 
 dives = []
 
-pointDecimation = 100
+pointDecimation = 10
 
 totalPoints = 0
 fieldMin = Vector3(sys.float_info.max,sys.float_info.max, sys.float_info.max)
@@ -397,6 +397,8 @@ def onSelectionUpdated():
 	print(ep)
 	tape.startHandle.setPosition(sp)
 	tape.endHandle.setPosition(ep)
+	DivePointCloud.minBox.setVector3f(Vector3(sp.x, -100, sp.z))
+	DivePointCloud.maxBox.setVector3f(Vector3(ep.x, 0, ep.z))
 	#else:
 	#	print("Invalid intersection")
 	
@@ -409,6 +411,7 @@ def enableSelectionMode():
 	p = lake.getBoundCenter()
 	cam.setPosition(p + Vector3(0, lake.getBoundRadius() * 3, 0))
 	cam.setPitchYawRoll(Vector3(radians(-90), radians(-55), 0))
+	DivePointCloud.pointScale.setFloat(1)
 
 #------------------------------------------------------------------------------
 # setup the measuring tape
