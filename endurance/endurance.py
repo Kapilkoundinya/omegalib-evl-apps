@@ -7,10 +7,13 @@ from pointCloud import *
 from measuringTape import *
 
 import DivePointCloud
+import PlaneRubberbandSelector
 
 scene = getSceneManager()
 scene.addLoader(TextPointsLoader())
 scene.addLoader(BinaryPointsLoader())
+
+setNearFarZ(1, 100000)
 
 pointCloudPath = "D:/Workspace/omegalib/apps/endurance/data"
 
@@ -48,7 +51,7 @@ lake = SceneNode.create("lake")
 
 dives = []
 
-pointDecimation = 1
+pointDecimation = 100
 
 totalPoints = 0
 fieldMin = Vector3(sys.float_info.max,sys.float_info.max, sys.float_info.max)
@@ -384,6 +387,28 @@ def onUpdate(frame, time, dt):
 setUpdateFunction(onUpdate)
 
 #scene.setBackgroundColor(Color('#303030'))
+
+#------------------------------------------------------------------------------
+# selection mode
+def onSelectionUpdated():
+	sp = PlaneRubberbandSelector.startPoint
+	ep = PlaneRubberbandSelector.endPoint
+	print(sp)
+	print(ep)
+	tape.startHandle.setPosition(sp)
+	tape.endHandle.setPosition(ep)
+	#else:
+	#	print("Invalid intersection")
+	
+def enableSelectionMode():
+	PlaneRubberbandSelector.enabled = True
+	PlaneRubberbandSelector.plane = Plane(Vector3(0,1,0), 0.0)
+	PlaneRubberbandSelector.selectionUpdatedCallback = onSelectionUpdated
+	cam = getDefaultCamera()
+	cam.setControllerEnabled(False)
+	p = lake.getBoundCenter()
+	cam.setPosition(p + Vector3(0, lake.getBoundRadius() * 3, 0))
+	cam.setPitchYawRoll(Vector3(radians(-90), radians(-55), 0))
 
 #------------------------------------------------------------------------------
 # setup the measuring tape

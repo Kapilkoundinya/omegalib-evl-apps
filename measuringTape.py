@@ -46,8 +46,11 @@ class MeasuringTape(Actor):
 		self.endHandle.setEffect('colored -e #005000')
 		self.body.setEffect('colored -e #505000')
 		self.startText.getMaterial().setDepthTestEnabled(False)
+		self.startText.getMaterial().setTransparent(True)
 		self.endText.getMaterial().setDepthTestEnabled(False)
+		self.endText.getMaterial().setTransparent(True)
 		self.bodyText.getMaterial().setDepthTestEnabled(False)
+		self.bodyText.getMaterial().setTransparent(True)
 		#self.endText.setFacingCamera(getDefaultCamera())
 		
 	#--------------------------------------------------------------------------
