@@ -15,11 +15,22 @@ scene.addLoader(BinaryPointsLoader())
 
 setNearFarZ(1, 100000)
 
-pointCloudPath = "D:/Workspace/omegalib/apps/endurance/data"
+pointCloudPath = "/data/evl/febret/dttools/data-mh-full/bonney"
 
 #------------------------------------------------------------------------------
 # models to load
 diveNames = {
+		'dive08-05': pointCloudPath + "/bonney-08-dive05.xyzb",
+		'dive08-07': pointCloudPath + "/bonney-08-dive07.xyzb",
+		'dive08-08': pointCloudPath + "/bonney-08-dive08.xyzb",
+		'dive08-09': pointCloudPath + "/bonney-08-dive09.xyzb",
+		'dive08-10': pointCloudPath + "/bonney-08-dive10.xyzb",
+		'dive08-12': pointCloudPath + "/bonney-08-dive12.xyzb",
+		'dive08-13': pointCloudPath + "/bonney-08-dive13.xyzb",
+		'dive08-15': pointCloudPath + "/bonney-08-dive15.xyzb",
+		'dive08-16': pointCloudPath + "/bonney-08-dive16.xyzb",
+		'dive08-17': pointCloudPath + "/bonney-08-dive17.xyzb",
+		
 		'dive09-13': pointCloudPath + "/bonney-09-dive13.xyzb",
 		'dive09-17': pointCloudPath + "/bonney-09-dive17.xyzb",
 		'dive09-18': pointCloudPath + "/bonney-09-dive18.xyzb",
@@ -34,6 +45,17 @@ diveNames = {
 		'dive09-27': pointCloudPath + "/bonney-09-dive27.xyzb"}
 
 diveColors = {
+		'dive08-05': Color('#900000'),
+		'dive08-07': Color('#009000'),
+		'dive08-08': Color('#000090'),
+		'dive08-09': Color('#909000'),
+		'dive08-10': Color('#900090'),
+		'dive08-12': Color('#009090'),
+		'dive08-13': Color('#904040'),
+		'dive08-15': Color('#409040'),
+		'dive08-16': Color('#404090'),
+		'dive08-17': Color('#909040'),
+		
 		'dive09-13': Color('#ff0000'),
 		'dive09-17': Color('#00ff00'),
 		'dive09-18': Color('#0000ff'),
@@ -155,14 +177,18 @@ mm = MenuManager.createAndInitialize()
 
 #------------------------------------------------------------------------------
 # dive list
-divemnu = mm.getMainMenu().addSubMenu('dives')
+divemnu08 = mm.getMainMenu().addSubMenu('dives-08')
+divemnu09 = mm.getMainMenu().addSubMenu('dives-09')
 for dive in dives:
+	if(dive.name.startswith('dive08')):
+		divemnu = divemnu08
+	else:
+		divemnu = divemnu09
 	dbtn = divemnu.addButton(dive.name, 'setDiveVisible("' + dive.name + '", %value%)') 
 	btn = dbtn.getButton()
 	btn.setCheckable(True)
 	btn.setChecked(True)
 	btn.setImageEnabled(True)
-	btn.setWidth(200)
 	btn.getImage().setFillColor(diveColors[dive.name])
 	btn.getImage().setFillEnabled(True)
 	btn.getImage().setSize(Vector2(20,20))

@@ -79,7 +79,7 @@ class DivePointCloud:
 		self.diveModel.name = self.name
 		self.diveModel.path = file
 		self.diveModel.optimize = True
-		self.diveModel.options = "xyzrgba -d " + str(decimation) + " -b 1000"
+		self.diveModel.options = "xyzrgba -d " + str(decimation) + " -b 16000"
 		
 		scene.loadModel(self.diveModel)
 		self.diveLoaded(self.diveModel.name)
