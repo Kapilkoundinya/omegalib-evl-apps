@@ -11,9 +11,6 @@ flat out vec3 vertex_light_position;
 flat out vec4 eye_position;
 flat out float sphere_radius;
 
-varying in float var_Depth[];
-varying out float depth;
-
 varying in vec3 var_WorldPos[];
 
 // data point attributes
@@ -32,8 +29,6 @@ main(void)
 		sphere_radius =  pointScale * 2.0;
 		float halfsize = sphere_radius * 0.5;
 		
-		depth = var_Depth[0];
-
 		gl_FrontColor = gl_FrontColorIn[0];
 
 		eye_position = gl_PositionIn[0];

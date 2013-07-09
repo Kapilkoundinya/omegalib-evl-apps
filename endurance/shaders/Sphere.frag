@@ -5,8 +5,6 @@ flat in float sphere_radius;
 flat in vec3 vertex_light_position;
 flat in vec4 eye_position;
 
-varying float depth;
-
 void main (void)
 {
 

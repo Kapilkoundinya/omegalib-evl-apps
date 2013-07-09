@@ -10,8 +10,8 @@ shaderPath = "./shaders";
 
 programDepthColor = ProgramAsset()
 programDepthColor.name = "points"
-programDepthColor.vertexShaderName = shaderPath + "/SphereDepthColor.vert"
-programDepthColor.fragmentShaderName = shaderPath + "/SphereDepthColor.frag"
+programDepthColor.vertexShaderName = shaderPath + "/SphereMultiColor.vert"
+programDepthColor.fragmentShaderName = shaderPath + "/Sphere.frag"
 programDepthColor.geometryShaderName = shaderPath + "/Sphere.geom"
 programDepthColor.geometryOutVertices = 4
 programDepthColor.geometryInput = PrimitiveType.Points
@@ -20,8 +20,8 @@ getSceneManager().addProgram(programDepthColor)
 
 programDepthColorSimple = ProgramAsset()
 programDepthColorSimple.name = "points-simple"
-programDepthColorSimple.vertexShaderName = shaderPath + "/SphereDepthColorSimple.vert"
-programDepthColorSimple.fragmentShaderName = shaderPath + "/SphereDepthColorSimple.frag"
+programDepthColorSimple.vertexShaderName = shaderPath + "/Point.vert"
+programDepthColorSimple.fragmentShaderName = shaderPath + "/Point.frag"
 getSceneManager().addProgram(programDepthColorSimple)
 
 #------------------------------------------------------------------------------

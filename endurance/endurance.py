@@ -8,6 +8,7 @@ from measuringTape import *
 
 import DivePointCloud
 import PlaneRubberbandSelector
+import SondeDrops
 
 scene = getSceneManager()
 scene.addLoader(TextPointsLoader())
@@ -15,21 +16,22 @@ scene.addLoader(BinaryPointsLoader())
 
 setNearFarZ(1, 100000)
 
-pointCloudPath = "/data/evl/febret/dttools/data-mh-full/bonney"
+#pointCloudPath = "/data/evl/febret/dttools/data-mh-full/bonney"
+pointCloudPath = "D:/Workspace/omegalib/apps/endurance/data"
 
 #------------------------------------------------------------------------------
 # models to load
 diveNames = {
-		'dive08-05': pointCloudPath + "/bonney-08-dive05.xyzb",
-		'dive08-07': pointCloudPath + "/bonney-08-dive07.xyzb",
-		'dive08-08': pointCloudPath + "/bonney-08-dive08.xyzb",
-		'dive08-09': pointCloudPath + "/bonney-08-dive09.xyzb",
-		'dive08-10': pointCloudPath + "/bonney-08-dive10.xyzb",
-		'dive08-12': pointCloudPath + "/bonney-08-dive12.xyzb",
-		'dive08-13': pointCloudPath + "/bonney-08-dive13.xyzb",
-		'dive08-15': pointCloudPath + "/bonney-08-dive15.xyzb",
-		'dive08-16': pointCloudPath + "/bonney-08-dive16.xyzb",
-		'dive08-17': pointCloudPath + "/bonney-08-dive17.xyzb",
+		# 'dive08-05': pointCloudPath + "/bonney-08-dive05.xyzb",
+		# 'dive08-07': pointCloudPath + "/bonney-08-dive07.xyzb",
+		# 'dive08-08': pointCloudPath + "/bonney-08-dive08.xyzb",
+		# 'dive08-09': pointCloudPath + "/bonney-08-dive09.xyzb",
+		# 'dive08-10': pointCloudPath + "/bonney-08-dive10.xyzb",
+		# 'dive08-12': pointCloudPath + "/bonney-08-dive12.xyzb",
+		# 'dive08-13': pointCloudPath + "/bonney-08-dive13.xyzb",
+		# 'dive08-15': pointCloudPath + "/bonney-08-dive15.xyzb",
+		# 'dive08-16': pointCloudPath + "/bonney-08-dive16.xyzb",
+		# 'dive08-17': pointCloudPath + "/bonney-08-dive17.xyzb",
 		
 		'dive09-13': pointCloudPath + "/bonney-09-dive13.xyzb",
 		'dive09-17': pointCloudPath + "/bonney-09-dive17.xyzb",
@@ -111,6 +113,7 @@ DivePointCloud.maxAttrib.setVector3f(fieldMax)
 
 #------------------------------------------------------------------------------
 # load additional models
+
 lakeSonarMeshModel = ModelInfo()
 lakeSonarMeshModel.name = "lake-sonar-mesh"
 lakeSonarMeshModel.path = "/data/evl/febret/omegalib/appData/endurance/bonney-sonde-bathy.obj"
@@ -118,14 +121,6 @@ lakeSonarMeshModel.optimize = True
 lakeSonarMeshModel.generateNormals = True
 lakeSonarMeshModel.normalizeNormals = True
 scene.loadModel(lakeSonarMeshModel)
-
-lakeSondeDropsModel = ModelInfo()
-lakeSondeDropsModel.name = "lake-sonde-drops"
-lakeSondeDropsModel.path = "/data/evl/febret/omegalib/appData/endurance/bonney-sonde-drops.obj"
-lakeSondeDropsModel.optimize = True
-lakeSondeDropsModel.generateNormals = True
-lakeSondeDropsModel.normalizeNormals = True
-scene.loadModel(lakeSondeDropsModel)
 
 # Create a scene object using the loaded model
 #lake.setEffect("points")
@@ -138,10 +133,8 @@ lakeSonarMesh = StaticObject.create("lake-sonar-mesh")
 lakeSonarMesh.setEffect("colored -e white -C -t | colored -d black -w -o -1000 -C -t")
 lake.addChild(lakeSonarMesh)
 
-lakeSondeDrops = StaticObject.create("lake-sonde-drops")
-lakeSondeDrops.setEffect("colored -e #008000")
-lakeSondeDrops.setScale(Vector3(1, 1, 1/6.0))
-lake.addChild(lakeSondeDrops)
+SondeDrops.load()
+lake.addChild(SondeDrops.sondeDrops)
 
 #minDepth.setFloat(10)
 #maxDepth.setFloat(50.0)
@@ -278,7 +271,7 @@ ss = mm.getMainMenu().addSlider(11, "lakeSonarMesh.getMaterial().setAlpha(%value
 ss.getSlider().setValue(10)
 ss.getWidget().setWidth(200)
 
-dropbtn = mm.getMainMenu().addButton("Show Sonde Drops", "lakeSondeDrops.setVisible(%value%)")
+dropbtn = mm.getMainMenu().addButton("Show Sonde Drops", "SondeDrops.sondeDrops.setVisible(%value%); SondeDrops.sondeDrops.setChildrenVisible(%value%)")
 dropbtn.getButton().setCheckable(True)
 dropbtn.getButton().setChecked(True)
 
@@ -419,14 +412,10 @@ setUpdateFunction(onUpdate)
 def onSelectionUpdated():
 	sp = PlaneRubberbandSelector.startPoint
 	ep = PlaneRubberbandSelector.endPoint
-	print(sp)
-	print(ep)
 	tape.startHandle.setPosition(sp)
 	tape.endHandle.setPosition(ep)
-	DivePointCloud.minBox.setVector3f(Vector3(sp.x, -100, sp.z))
-	DivePointCloud.maxBox.setVector3f(Vector3(ep.x, 0, ep.z))
-	#else:
-	#	print("Invalid intersection")
+	DivePointCloud.minBox.setVector3f(Vector3(min(sp.x, ep.x) -100, min(sp.z, ep.z)))
+	DivePointCloud.maxBox.setVector3f(Vector3(max(sp.x, ep.x), 0, max(sp.z, ep.z)))
 	
 def enableSelectionMode():
 	PlaneRubberbandSelector.enabled = True
@@ -436,7 +425,7 @@ def enableSelectionMode():
 	cam.setControllerEnabled(False)
 	p = lake.getBoundCenter()
 	cam.setPosition(p + Vector3(0, lake.getBoundRadius() * 3, 0))
-	cam.setPitchYawRoll(Vector3(radians(-90), radians(-55), 0))
+	cam.setPitchYawRoll(Vector3(radians(-90), 0,0)) #radians(-55), 0))
 	DivePointCloud.pointScale.setFloat(1)
 
 #------------------------------------------------------------------------------
@@ -445,7 +434,6 @@ tape = MeasuringTape()
 tapemnu = mm.getMainMenu().addSubMenu('Measuring Tape')
 tapemnu.addButton('Set End', 'tapeSetEnd()')
 tapemnu.addButton('Set Start', 'tapeSetStart()')
-tapemnu.addButton('Set Bounds', 'setBounds()')
 tapemnu.addButton('Reset Bounds', 'resetBounds()')
 
 def tapeSetStart():
@@ -460,22 +448,6 @@ def tapeSetEnd():
 	tape.endText.setFacingCamera(getDefaultCamera())
 	#tape.endText.setColor(Color('black'))
 
-def setBounds():
-	ep = tape.endHandle.getPosition()
-	sp = tape.startHandle.getPosition()
-	minx = ep.x if ep.x < sp.x else sp.x
-	miny = ep.y if ep.y < sp.y else sp.y
-	minz = ep.z if ep.z < sp.z else sp.z
-	maxx = ep.x if ep.x > sp.x else sp.x
-	maxy = ep.y if ep.y > sp.y else sp.y
-	maxz = ep.z if ep.z > sp.z else sp.z
-	minv = Vector3(minx, miny, minz)
-	maxv = Vector3(maxx, maxy, maxz)
-	print(minv)
-	print(maxv)
-	DivePointCloud.minBox.setVector3f(minv)
-	DivePointCloud.maxBox.setVector3f(maxv)	
-	
 def resetBounds():
 	DivePointCloud.minBox.setVector3f(Vector3(-1000,-1000,-1000))
 	DivePointCloud.maxBox.setVector3f(Vector3(1000,1000,1000))	
