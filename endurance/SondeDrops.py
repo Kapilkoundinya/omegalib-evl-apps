@@ -23,7 +23,7 @@ def createSondeDrop(data):
 	stx -= 1371377
 	sty -= 435670
 	depth = float(data[4])
-	print("Station " + stname + " X + " + str(stx) + " Y = " + str(sty))
+	#print("Station " + stname + " X + " + str(stx) + " Y = " + str(sty))
 	stline = sondeDrops.addLine()
 	stline.setStart(Vector3(stx, sty, 0))
 	stline.setEnd(Vector3(stx, sty, depth))

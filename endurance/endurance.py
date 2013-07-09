@@ -122,25 +122,12 @@ lakeSonarMeshModel.generateNormals = True
 lakeSonarMeshModel.normalizeNormals = True
 scene.loadModel(lakeSonarMeshModel)
 
-# Create a scene object using the loaded model
-#lake.setEffect("points")
-#pointScale = lake.getMaterial().addUniform('pointScale', UniformType.Float)
-#globalAlpha = lake.getMaterial().addUniform('globalAlpha', UniformType.Float)
-#minDepth = lake.getMaterial().addUniform('unif_MinDepth', UniformType.Float)
-#maxDepth = lake.getMaterial().addUniform('unif_MaxDepth', UniformType.Float)
-
 lakeSonarMesh = StaticObject.create("lake-sonar-mesh")
 lakeSonarMesh.setEffect("colored -e white -C -t | colored -d black -w -o -1000 -C -t")
 lake.addChild(lakeSonarMesh)
 
 SondeDrops.load()
 lake.addChild(SondeDrops.sondeDrops)
-
-#minDepth.setFloat(10)
-#maxDepth.setFloat(50.0)
-
-#pointScale.setFloat(0.02)
-#globalAlpha.setFloat(1.0)
 
 pivot = SceneNode.create('pivot')
 pivot.addChild(lake)
@@ -276,8 +263,8 @@ dropbtn.getButton().setCheckable(True)
 dropbtn.getButton().setChecked(True)
 
 mrm = mm.getMainMenu().addSubMenu("Render Mode")
-mrm.addButton("Normal", "renderModeNormal()")
-mrm.addButton("Simple", "renderModeSimple()")
+#mrm.addButton("Normal", "renderModeNormal()")
+#mrm.addButton("Simple", "renderModeSimple()")
 abtn = mrm.addButton("Additive", "setAdditive(%value%)")
 abtn.getButton().setCheckable(True)
 mrm.addLabel("------------------")
@@ -326,24 +313,24 @@ def colorByAngle():
 	DivePointCloud.w2.setFloat(0)
 	DivePointCloud.w3.setFloat(0)
 	DivePointCloud.w4.setFloat(0)
-	DivePointCloud.minDepth.setFloat(fieldMin.x)
-	DivePointCloud.maxDepth.setFloat(fieldMax.x)
+	DivePointCloud.fieldMin.setFloat(fieldMin.x)
+	DivePointCloud.fieldMax.setFloat(fieldMax.x)
 
 def colorByRange():
 	DivePointCloud.w1.setFloat(0)
 	DivePointCloud.w2.setFloat(1)
 	DivePointCloud.w3.setFloat(0)
 	DivePointCloud.w4.setFloat(0)
-	DivePointCloud.minDepth.setFloat(fieldMin.y)
-	DivePointCloud.maxDepth.setFloat(fieldMax.y)
+	DivePointCloud.fieldMin.setFloat(fieldMin.y)
+	DivePointCloud.fieldMax.setFloat(fieldMax.y)
 
 def colorByTimestamp():
 	DivePointCloud.w1.setFloat(0)
 	DivePointCloud.w2.setFloat(0)
 	DivePointCloud.w3.setFloat(1)
 	DivePointCloud.w4.setFloat(0)
-	DivePointCloud.minDepth.setFloat(fieldMin.z)
-	DivePointCloud.maxDepth.setFloat(fieldMax.z)
+	DivePointCloud.fieldMin.setFloat(fieldMin.z)
+	DivePointCloud.fieldMax.setFloat(fieldMax.z)
 	
 def colorByDive():
 	DivePointCloud.w1.setFloat(0)
@@ -354,8 +341,7 @@ def colorByDive():
 #queueCommand(':hint displayWand')
 queueCommand(":autonearfar on")
 globalScale = 1
-DivePointCloud.maxDepth.setFloat(50)
-DivePointCloud.minDepth.setFloat(-50)
+colorByAngle()
 
 #------------------------------------------------------------------------------
 # Wand ray information

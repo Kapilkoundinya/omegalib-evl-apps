@@ -6,14 +6,14 @@ varying vec3 var_Attribs;
 
 uniform float unif_Alpha;
 
-uniform float unif_MaxDepth;
-uniform float unif_MinDepth;
+uniform float unif_FieldMin;
+uniform float unif_FieldMax;
 
 // Weights for the 4 output color components
-uniform float unif_W1;
-uniform float unif_W2;
-uniform float unif_W3;
-uniform float unif_W4;
+uniform float unif_W1; // Angle
+uniform float unif_W2; // Range
+uniform float unif_W3; // Timestamp
+uniform float unif_W4; // Dive
 
 
 void main(void)
@@ -29,7 +29,7 @@ void main(void)
 	
 	vec3 w = vec3(unif_W1, unif_W2, unif_W3);
 	
-	float colorW = (dot(w.rgb, gl_Color.rgb) - unif_MinDepth) / (unif_MaxDepth - unif_MinDepth);
+	float colorW = (dot(w.rgb, gl_Color.rgb) - unif_FieldMin) / (unif_FieldMax - unif_FieldMin);
 	
 	vec3 startColor = vec3(0.1, 0.1, 1.0);
 	vec3 endColor = vec3(1.0, 0.1, 0.0);
