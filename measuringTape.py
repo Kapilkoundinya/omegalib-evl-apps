@@ -51,7 +51,9 @@ class MeasuringTape(Actor):
 		self.endText.getMaterial().setTransparent(True)
 		self.bodyText.getMaterial().setDepthTestEnabled(False)
 		self.bodyText.getMaterial().setTransparent(True)
-		#self.endText.setFacingCamera(getDefaultCamera())
+		self.endText.setFacingCamera(getDefaultCamera())
+		self.startText.setFacingCamera(getDefaultCamera())
+		self.bodyText.setFacingCamera(getDefaultCamera())
 		
 	#--------------------------------------------------------------------------
 	def dispose(self):
