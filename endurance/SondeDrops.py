@@ -13,7 +13,7 @@ sondeDropsDir = "D:/Workspace/omegalib/apps/endurance/data"
 sondeDropsPath = sondeDropsDir + "/" + sondeDropsFile
 
 sondeDrops = LineSet.create()
-sondeDrops.setEffect('colored -e white')
+sondeDrops.setEffect('colored -e #909090')
 
 def createSondeDrop(data):
 	stname = data[0]
@@ -27,10 +27,10 @@ def createSondeDrop(data):
 	stline = sondeDrops.addLine()
 	stline.setStart(Vector3(stx, sty, 0))
 	stline.setEnd(Vector3(stx, sty, depth))
-	stline.setThickness(2)
+	stline.setThickness(1)
 	stname = Text3D.create('fonts/arial.ttf', 2, stname)
 	stname.setFacingCamera(getDefaultCamera())
-	stname.setPosition(Vector3(stx, sty, 1))
+	stname.setPosition(Vector3(stx, sty, 1.5))
 	stname.setFixedSize(True)
 	stname.setFontSize(20)
 	sondeDrops.addChild(stname)

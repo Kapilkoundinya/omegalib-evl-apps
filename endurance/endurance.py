@@ -271,7 +271,7 @@ mrm.addLabel("------------------")
 mrm.addButton("Color By Dive", "colorByDive()")
 mrm.addButton("Color By Angle", "colorByAngle()")
 mrm.addButton("Color By Range", "colorByRange()")
-mrm.addButton("Color By Timestamp", "colorByTimestamp()")
+mrm.addButton("Color By Depth", "colorByDepth()")
 
 def onPointSizeSliderValueChanged(value):
 	size = ((value + 1) ** 2) * 0.01
@@ -324,13 +324,13 @@ def colorByRange():
 	DivePointCloud.fieldMin.setFloat(fieldMin.y)
 	DivePointCloud.fieldMax.setFloat(fieldMax.y)
 
-def colorByTimestamp():
+def colorByDepth():
 	DivePointCloud.w1.setFloat(0)
 	DivePointCloud.w2.setFloat(0)
 	DivePointCloud.w3.setFloat(1)
 	DivePointCloud.w4.setFloat(0)
-	DivePointCloud.fieldMin.setFloat(fieldMin.z)
-	DivePointCloud.fieldMax.setFloat(fieldMax.z)
+	DivePointCloud.fieldMin.setFloat(0)
+	DivePointCloud.fieldMax.setFloat(50)
 	
 def colorByDive():
 	DivePointCloud.w1.setFloat(0)
