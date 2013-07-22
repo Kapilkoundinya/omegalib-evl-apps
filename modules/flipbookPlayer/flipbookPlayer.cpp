@@ -393,7 +393,7 @@ void FlipbookRenderPass::render(Renderer* renderer, const DrawContext& context)
 			// If we did not initialize a texture for rendering, let's do it now.
 			if(myFrameTexture == NULL)
 			{
-				myFrameTexture = new Texture(context.gpuContext);
+				myFrameTexture = renderer->createTexture();
 				myFrameTexture->initialize(pixels->getWidth(), pixels->getHeight());
 			}
 
