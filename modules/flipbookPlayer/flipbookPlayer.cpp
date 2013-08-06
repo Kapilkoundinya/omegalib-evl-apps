@@ -370,7 +370,7 @@ int FlipbookPlayer::getNumReadyFrames()
 void FlipbookPlayer::initializeRenderer(Renderer* r) 
 {
 	// Add our custom render pass to the renderer.
-	r->addRenderPass(new FlipbookRenderPass(this, r), true);
+	r->addRenderPass(new FlipbookRenderPass(this, r));
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -407,14 +407,10 @@ void FlipbookRenderPass::render(Renderer* renderer, const DrawContext& context)
 				int nextIndex = myActiveTextureIndex + 1;
 				if(nextIndex == myPlayer->getNumGpuBuffers()) nextIndex = 0;
 
-				OMEGA_STAT_BEGIN(upload)
 				myFrameTexture->writePixels(myPixelBuffer[nextIndex]);
-				OMEGA_STAT_END(upload)
 
 				// Copy the frame pixels to the texture
-				OMEGA_STAT_BEGIN(textureWrite)
 				myPixelBuffer[myActiveTextureIndex]->copyFrom(pixels);
-				OMEGA_STAT_END(textureWrite);
 
 				myLastFrame = frame;
 			
