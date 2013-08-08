@@ -29,6 +29,7 @@ void main(void)
 	
 	vec3 w = vec3(unif_W1, unif_W2, unif_W3);
 	vec3 inputData = vec3(gl_Color.r, gl_Color.g, gl_Vertex.z); 
+	//vec3 inputData = gl_Color.rgb; 
 	
 	float colorW = (dot(w, inputData) - unif_FieldMin) / (unif_FieldMax - unif_FieldMin);
 	

@@ -7,7 +7,6 @@ flat in vec4 eye_position;
 
 void main (void)
 {
-
     float x = gl_TexCoord[0].x;
     float y = gl_TexCoord[0].y;
     float zz = 1.0 - x*x - y*y;
