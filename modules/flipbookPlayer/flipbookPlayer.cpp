@@ -36,6 +36,9 @@ public:
 	void play();
 	//! Pause animation
 	void pause();
+	// Stop and rewind animation
+	void stop();
+	void loop(bool value) { myLoop = value; }
 	void setCurrentFrameNumber(int frameNumber);
 
 	//! Adds the next frame to the buffering queue.
@@ -90,6 +93,8 @@ private:
 	//! Total playback time.
 	float myPlaybackTime;
 	
+	//! When set to true playback will start again once over.
+	bool myLoop;
 	//! True when the animation is playing (even when buffering)
 	bool myPlaying;
 	//! True when the animation play is suspended because not enough frames are in the queue.
@@ -146,6 +151,8 @@ BOOST_PYTHON_MODULE(flipbookPlayer)
 		PYAPI_METHOD(FlipbookPlayer, loadMultidir)
 		PYAPI_METHOD(FlipbookPlayer, play)
 		PYAPI_METHOD(FlipbookPlayer, pause)
+		PYAPI_METHOD(FlipbookPlayer, stop)
+		PYAPI_METHOD(FlipbookPlayer, loop)
 		PYAPI_METHOD(FlipbookPlayer, getFramesToBuffer)
 		PYAPI_METHOD(FlipbookPlayer, setFramesToBuffer)
 		PYAPI_METHOD(FlipbookPlayer, getFrameTime)
@@ -173,7 +180,8 @@ FlipbookPlayer* FlipbookPlayer::createAndInitialize()
 FlipbookPlayer::FlipbookPlayer():
 	EngineModule("FlipbookPlayer"),
 	myPlaying(false),
-	myPlaybackBarVisible(true)
+	myPlaybackBarVisible(true),
+	myLoop(false)
 {
 	myFramesToBuffer = 100;
 	myFrameTime = 0.2f;
@@ -219,6 +227,15 @@ void FlipbookPlayer::play()
 void FlipbookPlayer::pause()
 {
 	myPlaying = false;
+	myCurrentFrame = NULL;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void FlipbookPlayer::stop()
+{
+	myPlaying = false;
+	myLoading = true;
+	myBufferedFrames.clear();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -289,6 +306,11 @@ void FlipbookPlayer::update(const UpdateContext& context)
 		{
 			omsg("Finished playback");
 			myPlaying = false;
+			if(myLoop)
+			{
+				stop();
+				play();
+			}
 		}
 
 		// If we dont have enough frames left to continue playback, switch to buffering mode and increase
