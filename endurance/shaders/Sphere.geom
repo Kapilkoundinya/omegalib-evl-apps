@@ -39,25 +39,25 @@ main(void)
 
 		gl_TexCoord[0].st = vec2(1.0,-1.0);
 		gl_Position = gl_PositionIn[0];
-		gl_Position.xyz += (unif_TileX - unif_TileY) * halfsize;
+		gl_Position.xy += vec2(halfsize, -halfsize);
 		gl_Position = gl_ProjectionMatrix * gl_Position;
 		EmitVertex();
 
 		gl_TexCoord[0].st = vec2(1.0,1.0);
 		gl_Position = gl_PositionIn[0];
-		gl_Position.xyz += (unif_TileX + unif_TileY) * halfsize;
+		gl_Position.xy += vec2(halfsize, halfsize);
 		gl_Position = gl_ProjectionMatrix * gl_Position;
 		EmitVertex();
 
 		gl_TexCoord[0].st = vec2(-1.0,-1.0);
 		gl_Position = gl_PositionIn[0];
-		gl_Position.xyz += (-unif_TileX - unif_TileY) * halfsize;
+		gl_Position.xy += vec2(-halfsize, -halfsize);
 		gl_Position = gl_ProjectionMatrix * gl_Position;
 		EmitVertex();
 
 		gl_TexCoord[0].st = vec2(-1.0,1.0);
 		gl_Position = gl_PositionIn[0];
-		gl_Position.xyz += (-unif_TileX + unif_TileY) * halfsize;
+		gl_Position.xy += vec2(-halfsize, halfsize);
 		gl_Position = gl_ProjectionMatrix * gl_Position;
 		EmitVertex();
 
