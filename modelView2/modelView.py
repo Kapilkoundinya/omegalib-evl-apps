@@ -9,9 +9,9 @@ import os
 import skyboxSwitcher
 import objectManipulator
 
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # configuration
-modelHome = "D:/Workspace/omegalib/apps/modelView/"
+modelHome = "/data/evl/omegalib-user/usb/models"
 
 scene = getSceneManager()
 
@@ -19,7 +19,7 @@ scene = getSceneManager()
 loadedModels = {}
 modelButtons = {}
 
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 light = Light.create()
 light.setColor(Color("#807070"))
 light.setAmbient(Color("#202020"))
@@ -77,7 +77,7 @@ scene.displayWand(0, 1)
 
 selectedObject = None
 
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Function called when a model with the specified name has finished loading.
 def onModelLoaded(name):
 	#m = models[name]
@@ -116,7 +116,7 @@ def onModelLoaded(name):
 	btn.getButton().setChecked(True)
 	onModelButtonClicked(name, True)
 
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Event handler for model button click
 def onModelButtonClicked(name, value):
 	global curModel
@@ -125,13 +125,13 @@ def onModelButtonClicked(name, value):
 	# If the model has been set to visible, set it as the selected object
 	if(value): objectManipulator.currentObject = curModel
 
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 def onPinnedButtonClicked(value):
 	global selectedObject
 	if(selectedObject != None):
 		selectedObject.setSelectable(not value)
 
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 def onResetScaleButtonClicked():
 	global selectedObject
 	if(selectedObject != None):
@@ -146,7 +146,7 @@ def onFixedScaleButtonClicked():
 		curScale = selectedObject.getScale()
 		selectedObject.setScale(curScale * factor)
 		
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 def onAnimationToggleButtonClicked(value):
 	global selectedObject
 	if(selectedObject != None):
@@ -156,7 +156,7 @@ def onAnimationToggleButtonClicked(value):
 			else:
 				curModel.stopAllAnimations()
 	
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 def onAlphaSliderChanged(value):
 	global selectedObject
 	if(selectedObject != None):
@@ -165,27 +165,28 @@ def onAlphaSliderChanged(value):
 		else: selectedObject.getMaterial().setTransparent(False)
 		selectedObject.getMaterial().setAlpha(alpha)
 
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 def setObjectEffect(value):
 	global selectedObject
 	if(selectedObject != None):
 			selectedObject.setEffect(value)
 			
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 def createFilesystemMenu(mnu, dir):
 	global modelButtons
 	for filename in os.listdir(dir):
 		filePath = dir + "/" + filename
 		# Skip hidden files and directories
 		if(not filename.startswith('.')):
-			if(filename.endswith('.fbx') or filename.endswith('.obj') or filename.endswith('.iv')):
+			fl = filename.lower()
+			if(fl.endswith('.fbx') or fl.endswith('.obj') or fl.endswith('.iv')):
 				modelButtons[filePath] = mnu.addButton(os.path.basename(filename), "queueModelLoad('" + filePath + "')")
 			elif(os.path.isdir(filePath)):
 				createFilesystemMenu(mnu.addSubMenu(os.path.basename(filename)), filePath)
 
 createFilesystemMenu(menu.addSubMenu('Load'), modelHome)
 
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 def queueModelLoad(modelPath):
 	global modelButtons
 	modelName = os.path.basename(modelPath)
@@ -198,7 +199,7 @@ def queueModelLoad(modelPath):
 	modelButtons[modelPath].setText(modelButtons[modelPath].getText() + " <<")
 	modelButtons[modelPath].setCommand("")
 
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 def updateSelectedObject(selObj):
 	global selectedObject
 	selectedObject = selObj
@@ -210,7 +211,7 @@ def updateSelectedObject(selObj):
 	else:
 		selLabel.setText("Selected Object: None")
 
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 def onUpdate(frame, t, dt):
 	global selectedObject
 	cam = getDefaultCamera()
@@ -218,7 +219,7 @@ def onUpdate(frame, t, dt):
 	if(objectManipulator.currentObject != selectedObject):
 		updateSelectedObject(objectManipulator.currentObject)
 
-#--------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 def onEvent():
 	e = getEvent()
 	if(not e.isProcessed()):
