@@ -18,13 +18,15 @@ def createStar(data, i):
 	
 	starModel.addVertex(Vector3(stx, sty, stz))
 	c = Color(1,1,1,1)
-	if(spec[0] == 'O'): c = Color('0xbfbfff')
-	elif(spec[0] == 'B'): c = Color('0xcfcfff')
-	elif(spec[0] == 'A'): c = Color('0xdfdfff')
-	elif(spec[0] == 'F'): c = Color('0xefefff')
-	elif(spec[0] == 'G'): c = Color('0xffffdf')
-	elif(spec[0] == 'K'): c = Color('0xffdfbf')
-	elif(spec[0] == 'M'): c = Color('0xffbf8f')
+	if(len(spec) > 0):
+		if(spec[0] == 'O'): c = Color('0xffbfbf')
+		elif(spec[0] == 'B'): c = Color('0xffcfcf')
+		elif(spec[0] == 'A'): c = Color('0xffdfdf')
+		elif(spec[0] == 'F'): c = Color('0xffefef')
+		elif(spec[0] == 'G'): c = Color('0xdfffff')
+		elif(spec[0] == 'K'): c = Color('0xdfdfff')
+		elif(spec[0] == 'M'): c = Color('0x8fbfff')
+	c.alpha = mag
 	starModel.addColor(c)
 
 
@@ -61,5 +63,5 @@ sky = StaticObject.create('stars')
 sky.getMaterial().setProgram('stars')
 sky.getMaterial().setTransparent(True)
 sky.getMaterial().setAdditive(True)
-sky.getMaterial().setDepthTestEnabled(False)
+sky.getMaterial().setDepthTestEnabled(True)
 

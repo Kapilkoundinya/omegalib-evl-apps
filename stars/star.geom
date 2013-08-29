@@ -6,7 +6,7 @@ flat out float sphere_radius;
 
 void main(void)
 {
-	float pointScale = 0.2;
+	float pointScale = 0.1 * gl_FrontColorIn[0].a;
 	
 	sphere_radius =  pointScale * 2.0;
 	float halfsize = sphere_radius * 0.5;

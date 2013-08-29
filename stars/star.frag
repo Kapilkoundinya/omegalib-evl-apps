@@ -13,8 +13,8 @@ void main (void)
 
     float z = sqrt(zz);
 
-    vec3 normal = vec3(x, y, z);
+    //vec3 normal = vec3(x, y, z);
 
     gl_FragColor = gl_Color;
-	gl_FragColor.a = pow(zz, 20);
+	gl_FragColor.a = pow(zz, 16);
 }
