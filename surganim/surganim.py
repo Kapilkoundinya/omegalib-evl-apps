@@ -28,7 +28,7 @@ defPos = Vector3(0, 1, -2)
 interactor = ToolkitUtils.setupInteractor("config/interactor")
 rt = SceneNode.create('root')
 getScene().addChild(rt)
-rt.setPosition(Vector3(-2.28, -0.76, 0.35))
+rt.setPosition(Vector3(0, -0.76, 0.35))
 rt.setScale(Vector3(1.4, 1.4, 1.4))
 interactor.setSceneNode(rt)
 
@@ -70,22 +70,27 @@ seq3.setVisible(False)
 seq3.setEffect("textured")
 rt.addChild(seq3)
 
-seq4Model = ModelInfo()
-seq4Model.name = "seq4"
-seq4Model.path = "surganim/data/surgseq4.fbx"
-seq4Model.usePowerOfTwoTextures = False
-scene.loadModel(seq4Model)
-seq4 = AnimatedObject.create("seq4")
-seq4.setScale(defScale)
-seq4.setPosition(defPos)
-seq4.setVisible(False)
-seq4.setEffect("textured")
-rt.addChild(seq4)
+print "seq1 length:",seq1.getAnimationLength(0)
+print "seq2 length:",seq2.getAnimationLength(0)
+print "seq3 length:",seq3.getAnimationLength(0)
+
+#seq1.setOnAnimationEndedScript("playseq2()")
+
+#seq4Model = ModelInfo()
+#seq4Model.name = "seq4"
+#seq4Model.path = "surganim/data/surgseq4.fbx"
+#seq4Model.usePowerOfTwoTextures = False
+#scene.loadModel(seq4Model)
+#seq4 = AnimatedObject.create("seq4")
+#seq4.setScale(defScale)
+#seq4.setPosition(defPos)
+#seq4.setVisible(False)
+#seq4.setEffect("textured")
+#rt.addChild(seq4)
 
 # setup menu
 mm = MenuManager.createAndInitialize()
-menu = mm.createMenu("main")
-mm.setMainMenu(menu)
+menu = mm.getMainMenu()
 
 mnui = menu.addItem(MenuItemType.Button)
 mnui.setText("Start Animation 1")
@@ -99,9 +104,9 @@ mnui = menu.addItem(MenuItemType.Button)
 mnui.setText("Start Animation 3")
 mnui.setCommand("playseq3()")
 
-mnui = menu.addItem(MenuItemType.Button)
-mnui.setText("Start Animation 4")
-mnui.setCommand("playseq4()")
+#mnui = menu.addItem(MenuItemType.Button)
+#mnui.setText("Start Animation 4")
+#mnui.setCommand("playseq4()")
 
 skybox = Skybox()
 skybox.loadCubeMap("common/cubemaps/grid4", "png")
@@ -109,32 +114,60 @@ skybox.loadCubeMap("common/cubemaps/grid4", "png")
 scene.setBackgroundColor(Color('#202020'))
 scene.displayWand(0, 1)
 
+animTimer = -1
+curSeq = -1
+
 def playseq1():
 	# Set the first sequence as visible and start playback.
 	# The other sequences will be triggered in the OnAnimationEnded events
 	seq2.setVisible(False)
 	seq3.setVisible(False)
-	seq4.setVisible(False)
-	seq1.playAnimation(0)
+	#seq4.setVisible(False)
 	seq1.setVisible(True)
-
+	seq1.playAnimation(0)
+	
+	global animTimer
+	global curSeq
+	animTimer = seq1.getAnimationLength(0)
+	curSeq = 1
+	
 def playseq2():
 	seq1.setVisible(False)
 	seq3.setVisible(False)
-	seq4.setVisible(False)
+	#seq4.setVisible(False)
 	seq2.playAnimation(0)
 	seq2.setVisible(True)
+	
+	global animTimer
+	global curSeq
+	animTimer = seq2.getAnimationLength(0)
+	curSeq = 2
 	
 def playseq3():
 	seq1.setVisible(False)
 	seq2.setVisible(False)
-	seq4.setVisible(False)
+	#seq4.setVisible(False)
 	seq3.playAnimation(0)
 	seq3.setVisible(True)
 	
-def playseq4():
-	seq1.setVisible(False)
-	seq2.setVisible(False)
-	seq3.setVisible(False)
-	seq4.playAnimation(0)
-	seq4.setVisible(True)
+	global animTimer
+	global curSeq
+	animTimer = seq3.getAnimationLength(0)
+	curSeq = 3
+#def playseq4():
+#	seq1.setVisible(False)
+#	seq2.setVisible(False)
+#	seq3.setVisible(False)
+#	seq4.playAnimation(0)
+#	seq4.setVisible(True)
+
+def onUpdate(frame, time, dt):
+	global animTimer
+	animTimer -= dt
+	
+	if( curSeq == 1 and animTimer < 0 ):
+		playseq2()
+	elif( curSeq ==2 and animTimer < 0 ):
+		playseq3()
+		
+setUpdateFunction(onUpdate)
