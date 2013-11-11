@@ -40,9 +40,12 @@ scene.setSkyBox(skybox)
 
 # setup menu
 mm = MenuManager.createAndInitialize()
-menu = mm.createMenu("main")
+menu = mm.getMainMenu()
 mm.setMainMenu(menu)
 
+mi1 = menu.addButton("Toggle Background", "toggleBackground(%value%)")
+mi1.getButton().setCheckable(True)
+mi1.getButton().setChecked(True)
 
 # Queue models for loading
 for name,model in modelNames.iteritems():
@@ -68,12 +71,19 @@ def onModelLoaded(name):
 		mi = menu.addItem(MenuItemType.Button)
 		mi.setText(name)
 		mi.setCommand("toggleModel('" + name + "')")
-		
+		mi.getButton().setCheckable(True)
+		mi.getButton().setChecked(modelNames[name][1])
 #--------------------------------------------------------------------------------------------------
 def toggleModel(name):
 	global models
 	models[name].setVisible(not models[name].isVisible())
-	
+#--------------------------------------------------------------------------------------------------
+def toggleBackground(enabled):
+	if(enabled):
+		scene.setSkyBox(skybox)
+	else:
+		scene.setSkyBox(None)
+		scene.setBackgroundColor(Color('#000000'))
 #--------------------------------------------------------------------------------------------------
 # Update callback
 #def onUpdate(frame, time, dt):
@@ -87,7 +97,3 @@ def toggleModel(name):
 				# model.setAlpha(1.0)
 		
 #setUpdateFunction(onUpdate)
-
-# comment these out if you want to enable the background grid
-#scene.setSkyBox(None)
-#scene.setBackgroundColor(Color('#000000'))

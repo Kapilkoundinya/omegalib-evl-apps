@@ -49,6 +49,10 @@ if(menu == None):
 	menu = mm.createMenu("main")
 	mm.setMainMenu(menu)
 
+mi1 = menu.addButton("Toggle Background", "toggleBackground(%value%)")
+mi1.getButton().setCheckable(True)
+mi1.getButton().setChecked(True)
+
 globalScale = 4.0
 curScale = 1.0
 
@@ -91,13 +95,22 @@ def onModelLoaded(name):
 		mi = menu.addItem(MenuItemType.Button)
 		mi.setText(name)
 		mi.setCommand("toggleModel('" + name + "')")
+		mi.getButton().setCheckable(True)
+		mi.getButton().setChecked(True)
 		
 #--------------------------------------------------------------------------------------------------
 def toggleModel(name):
 	global models
 	print(getEvent().getType())
 	models[name].setVisible(not models[name].isVisible())
-	
+
+#--------------------------------------------------------------------------------------------------
+def toggleBackground(enabled):
+	if(enabled):
+		scene.setSkyBox(skybox)
+	else:
+		scene.setSkyBox(None)
+		scene.setBackgroundColor(Color('#000000'))
 #--------------------------------------------------------------------------------------------------
 def handleEvent():
 	global curScale
@@ -131,7 +144,8 @@ setUpdateFunction(onUpdate)
 # Setup soundtrack
 se = getSoundEnvironment()
 if(se != None):
-	music = se.loadSoundFromFile('music', '/Users/evldemo/sounds/music/slow.wav')
+	se.setAssetDirectory("molecule");
+	music = se.loadSoundFromFile('music', 'slow.wav')
 	simusic = SoundInstance(music)
 	simusic.setPosition(Vector3(0, 2, -1))
 	simusic.setLoop(True)
@@ -142,7 +156,3 @@ if(se != None):
 	simusic.playStereo()
 
 queueCommand(":freefly")
-
-# comment these out if you want to enable the background grid
-#scene.setSkyBox(None)
-#scene.setBackgroundColor(Color('#000000'))
